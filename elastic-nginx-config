@@ -1,0 +1,29 @@
+upstream nonprod_es_56 {
+ server 10.130.92.190:9200;
+ server 10.130.93.92:9200;
+}
+
+
+server {
+    listen 80;
+    server_name 178.128.106.134;
+    access_log  /var/log/nginx/nonprod-es-56-nginx-access.log;
+    error_log  /var/log/nginx/nonprod-es-56-nginx-error.log;
+    client_max_body_size 50M;
+
+    location / {
+        proxy_pass         http://nonprod_es_56/;
+        proxy_redirect     off;
+        proxy_set_header   Host             $host;
+        proxy_set_header   X-Real-IP        $remote_addr;
+        proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+        proxy_read_timeout 300;
+#       auth_basic           "Authentication";
+#        auth_basic_user_file /etc/nginx/secrets/nonprod-es.pswd;
+        }
+
+    location /nginx_status {
+        stub_status on;
+        access_log off;
+    }
+}
