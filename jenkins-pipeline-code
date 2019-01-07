@@ -1,0 +1,32 @@
+#!/usr/bin/env groovy
+import hudson.model.*
+import hudson.EnvVars
+import groovy.json.JsonSlurperClassic
+import groovy.json.JsonBuilder
+import groovy.json.JsonOutput
+import java.net.URL
+
+node{
+    stage('checkout'){
+        git 'https://github.com/edureka-git/DevOpsClassCodes.git'
+    }
+    stage('compile'){
+        withMaven(maven:'Maven'){
+            sh 'mvn compile'
+        }
+    }
+    stage('CodeTest'){
+        try{
+            withMaven(maven:'Maven'){
+            sh 'mvn test'
+            }
+        } finally{
+                junit 'target/surefire-reports/*.xml'
+        }
+    }
+    stage('package'){
+        withMaven(maven:'Maven'){
+            sh 'mvn package'
+        }
+    }
+}
