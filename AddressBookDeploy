@@ -1,0 +1,17 @@
+rm -rf docker-jenkins-build
+mkdir docker-jenkins-build
+cd docker-jenkins-build
+
+cp /root/.jenkins/workspace/AddressBookPackage/target/addressbook.war .
+
+touch Dockerfile
+
+cat << 'EOF' > Dockerfile
+FROM tomcat
+ADD addressbook.war /usr/local/tomcat/webapps
+CMD "catalina.sh" "run"
+EOF
+
+sudo docker build . -t npsoni/deployimage:$BUILD_NUMBER
+sudo docker push npsoni/deployimage:$BUILD_NUMBER
+sudo docker run -itd --name "MyContainer-$BUILD_NUMBER" -p 8085:8080 npsoni/deployimage:$BUILD_NUMBER
